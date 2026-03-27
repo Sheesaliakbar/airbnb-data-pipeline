@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: stg_listings
+    description: "Cleaned Airbnb listings data with price casting and null filters."
+    columns:
+      - name: listing_id
+        tests:
+          - unique
+          - not_null
+      - name: price_per_night
+        tests:
+          - not_null
+
+  - name: stg_census
+    description: "Merged Census G01 and G02 data for population and income analysis."
+    columns:
+      - name: lga_code
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_lga_codes
+    description: "Mapping of LGA codes to their official names."
+    columns:
+      - name: lga_code
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_lga_suburb
+    description: "Mapping of suburbs to their respective LGA names."
+    columns:
+      - name: suburb_name
+        tests:
+          - not_null
+      - name: lga_name
+        tests:
+          - not_null

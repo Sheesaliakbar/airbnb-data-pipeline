@@ -1,0 +1,14 @@
+# Ignore the virtual environment
+airbnb_env/
+
+# Ignore local data (keep your repo light)
+data/
+
+# Ignore compiled python files
+__pycache__/
+*.pyc
+
+# Ignore dbt logs and targets
+target/
+dbt_project/logs/
+dbt_project/target/

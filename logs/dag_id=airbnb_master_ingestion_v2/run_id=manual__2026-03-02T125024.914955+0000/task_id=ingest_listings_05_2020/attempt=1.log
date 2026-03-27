@@ -1,0 +1,21 @@
+[2026-03-02T12:51:04.158+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2026-03-02T12:51:04.426+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: airbnb_master_ingestion_v2.ingest_listings_05_2020 manual__2026-03-02T12:50:24.914955+00:00 [queued]>
+[2026-03-02T12:51:04.472+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: airbnb_master_ingestion_v2.ingest_listings_05_2020 manual__2026-03-02T12:50:24.914955+00:00 [queued]>
+[2026-03-02T12:51:04.473+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 1
+[2026-03-02T12:51:04.519+0000] {taskinstance.py:2330} INFO - Executing <Task(PythonOperator): ingest_listings_05_2020> on 2026-03-02 12:50:24.914955+00:00
+[2026-03-02T12:51:04.535+0000] {standard_task_runner.py:63} INFO - Started process 601 to run task
+[2026-03-02T12:51:04.554+0000] {standard_task_runner.py:90} INFO - Running: ['airflow', 'tasks', 'run', 'airbnb_master_ingestion_v2', 'ingest_listings_05_2020', 'manual__2026-03-02T12:50:24.914955+00:00', '--job-id', '59', '--raw', '--subdir', 'DAGS_FOLDER/newly_dag_for_test_master_load_bronze.py', '--cfg-path', '/tmp/tmpdaa4okr5']
+[2026-03-02T12:51:04.582+0000] {standard_task_runner.py:91} INFO - Job 59: Subtask ingest_listings_05_2020
+[2026-03-02T12:51:04.822+0000] {task_command.py:426} INFO - Running <TaskInstance: airbnb_master_ingestion_v2.ingest_listings_05_2020 manual__2026-03-02T12:50:24.914955+00:00 [running]> on host af14385ea4f7
+[2026-03-02T12:51:05.258+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='airbnb_master_ingestion_v2' AIRFLOW_CTX_TASK_ID='ingest_listings_05_2020' AIRFLOW_CTX_EXECUTION_DATE='2026-03-02T12:50:24.914955+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-03-02T12:50:24.914955+00:00'
+[2026-03-02T12:51:05.264+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2026-03-02T12:51:05.353+0000] {logging_mixin.py:188} INFO - Starting ingestion for: listings/05_2020.csv
+[2026-03-02T12:51:06.512+0000] {crypto.py:82} WARNING - empty cryptography key - values will not be stored encrypted.
+[2026-03-02T12:51:06.514+0000] {base.py:84} INFO - Using connection ID 'postgres_conn' for task execution.
+[2026-03-02T12:51:19.529+0000] {logging_mixin.py:188} INFO - Successfully moved 37562 rows to listings_05_2020
+[2026-03-02T12:51:19.538+0000] {python.py:237} INFO - Done. Returned value was: None
+[2026-03-02T12:51:19.541+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2026-03-02T12:51:19.612+0000] {taskinstance.py:1206} INFO - Marking task as SUCCESS. dag_id=airbnb_master_ingestion_v2, task_id=ingest_listings_05_2020, run_id=manual__2026-03-02T12:50:24.914955+00:00, execution_date=20260302T125024, start_date=20260302T125104, end_date=20260302T125119
+[2026-03-02T12:51:19.803+0000] {local_task_job_runner.py:240} INFO - Task exited with return code 0
+[2026-03-02T12:51:19.979+0000] {taskinstance.py:3498} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2026-03-02T12:51:19.987+0000] {local_task_job_runner.py:222} INFO - ::endgroup::

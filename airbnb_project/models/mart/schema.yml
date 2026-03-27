@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: dim_lga_profile
+    description: "LGA level demographics and income data"
+    columns:
+      - name: lga_code
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_listings
+    description: "Cleaned Airbnb listings information"
+    columns:
+      - name: listing_id
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_airbnb_analytics
+    description: "Final fact table joining listings with census data"
+    columns:
+      - name: listing_id
+        tests:
+          - unique
+          - not_null
+      - name: lga_code
+        tests:
+          - not_null

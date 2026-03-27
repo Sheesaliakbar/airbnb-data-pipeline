@@ -1,0 +1,33 @@
+[2026-03-02T13:16:16.072+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2026-03-02T13:16:16.158+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: airbnb_master_ingestion_v2.trigger_dbt_models manual__2026-03-02T12:50:24.914955+00:00 [queued]>
+[2026-03-02T13:16:16.186+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: airbnb_master_ingestion_v2.trigger_dbt_models manual__2026-03-02T12:50:24.914955+00:00 [queued]>
+[2026-03-02T13:16:16.187+0000] {taskinstance.py:2306} INFO - Starting attempt 2 of 2
+[2026-03-02T13:16:16.226+0000] {taskinstance.py:2330} INFO - Executing <Task(BashOperator): trigger_dbt_models> on 2026-03-02 12:50:24.914955+00:00
+[2026-03-02T13:16:16.238+0000] {standard_task_runner.py:63} INFO - Started process 197 to run task
+[2026-03-02T13:16:16.246+0000] {standard_task_runner.py:90} INFO - Running: ['airflow', 'tasks', 'run', 'airbnb_master_ingestion_v2', 'trigger_dbt_models', 'manual__2026-03-02T12:50:24.914955+00:00', '--job-id', '74', '--raw', '--subdir', 'DAGS_FOLDER/newly_dag_for_test_master_load_bronze.py', '--cfg-path', '/tmp/tmp0hb5_usu']
+[2026-03-02T13:16:16.252+0000] {standard_task_runner.py:91} INFO - Job 74: Subtask trigger_dbt_models
+[2026-03-02T13:16:16.811+0000] {task_command.py:426} INFO - Running <TaskInstance: airbnb_master_ingestion_v2.trigger_dbt_models manual__2026-03-02T12:50:24.914955+00:00 [running]> on host e429156112ce
+[2026-03-02T13:16:17.455+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='airbnb_master_ingestion_v2' AIRFLOW_CTX_TASK_ID='trigger_dbt_models' AIRFLOW_CTX_EXECUTION_DATE='2026-03-02T12:50:24.914955+00:00' AIRFLOW_CTX_TRY_NUMBER='2' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-03-02T12:50:24.914955+00:00'
+[2026-03-02T13:16:17.459+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2026-03-02T13:16:17.530+0000] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2026-03-02T13:16:17.532+0000] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', 'cd /opt/airflow/airbnb_project && dbt run && dbt snapshot']
+[2026-03-02T13:16:17.554+0000] {subprocess.py:86} INFO - Output:
+[2026-03-02T13:16:17.573+0000] {subprocess.py:93} INFO - /usr/bin/bash: line 1: dbt: command not found
+[2026-03-02T13:16:17.575+0000] {subprocess.py:97} INFO - Command exited with return code 127
+[2026-03-02T13:16:17.577+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2026-03-02T13:16:17.622+0000] {taskinstance.py:2905} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/models/taskinstance.py", line 465, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/models/taskinstance.py", line 432, in _execute_callable
+    return execute_callable(context=context, **execute_callable_kwargs)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/models/baseoperator.py", line 400, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/operators/bash.py", line 243, in execute
+    raise AirflowException(
+airflow.exceptions.AirflowException: Bash command failed. The command returned a non-zero exit code 127.
+[2026-03-02T13:16:17.632+0000] {taskinstance.py:1206} INFO - Marking task as FAILED. dag_id=airbnb_master_ingestion_v2, task_id=trigger_dbt_models, run_id=manual__2026-03-02T12:50:24.914955+00:00, execution_date=20260302T125024, start_date=20260302T131616, end_date=20260302T131617
+[2026-03-02T13:16:17.674+0000] {standard_task_runner.py:110} ERROR - Failed to execute job 74 for task trigger_dbt_models (Bash command failed. The command returned a non-zero exit code 127.; 197)
+[2026-03-02T13:16:17.709+0000] {local_task_job_runner.py:240} INFO - Task exited with return code 1
+[2026-03-02T13:16:17.766+0000] {taskinstance.py:3498} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-03-02T13:16:17.772+0000] {local_task_job_runner.py:222} INFO - ::endgroup::

@@ -1,0 +1,23 @@
+version: 2
+
+sources:
+  - name: raw_data
+    database: airbnb_db
+    schema: bronze
+    tables:
+      - name: nsw_lga_codes
+      - name: nsw_lga_suburb
+      - name: nsw_lga_census_2016_g01
+      - name: nsw_lga_census_2016_g02
+      - name: listings_05_2020
+      - name: listings_06_2020
+      - name: listings_07_2020
+      - name: listings_08_2020
+      - name: listings_09_2020
+      - name: listings_10_2020
+      - name: listings_11_2020
+      - name: listings_12_2020
+      - name: listings_01_2021
+      - name: listings_02_2021
+      - name: listings_03_2021
+      - name: listings_04_2021
