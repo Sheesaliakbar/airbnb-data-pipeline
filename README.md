@@ -1,4 +1,6 @@
 🏠 Airbnb End-to-End Data Pipeline (Sydney)
+
+
 An automated ELT/ETL pipeline designed to process 12 months of Sydney Airbnb data. This project demonstrates a complete Modern Data Stack integration using Airflow for orchestration, dbt for modular SQL transformations, and PostgreSQL hosted in Docker containers.
 
 🏗️ Architecture: The Medallion Approach
