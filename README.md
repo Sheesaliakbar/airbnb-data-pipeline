@@ -56,3 +56,6 @@ Access the tools:
 Airflow UI: localhost:8080 (User/Pass: admin/admin)
 
 Postgres: localhost:5432
+
+
+🗺️ Interactive Architecture [👉 View Live Diagram](https://sheesaliakbar.github.io/airbnb-data-pipeline/airbnb-pipeline.html)
