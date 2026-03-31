@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Airbnb Data Pipeline — Shees Ali Akbar</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #080c14;
+    --card: #0e1420;
+    --border: #1e2a3a;
+    --bronze: #cd7f32;
+    --silver: #a8b8c8;
+    --gold: #f5c518;
+    --blue: #2196f3;
+    --red: #e94560;
+    --green: #00e5a0;
+    --orange: #ff6b35;
+    --text: #e8eaf0;
+    --muted: #6b7a90;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(33,150,243,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(33,150,243,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper { position: relative; z-index: 1; padding: 24px 16px 60px; max-width: 900px; margin: 0 auto; }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: 40px; }
+  .header-badge {
+    display: inline-block;
+    background: rgba(233,69,96,0.15);
+    border: 1px solid var(--red);
+    color: var(--red);
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(20px, 5vw, 32px);
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 0%, var(--blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .header p {
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  /* Flow Arrow */
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 12px 0;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+  .flow-arrow::before, .flow-arrow::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border));
+  }
+  .flow-arrow::after {
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+  .arrow-icon { font-size: 18px; }
+
+  /* Stage Card */
+  .stage {
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    margin-bottom: 6px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .stage:hover { transform: translateY(-2px); }
+  .stage:active { transform: scale(0.99); }
+
+  .stage-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    position: relative;
+  }
+  .stage-header::after {
+    content: '▾';
+    position: absolute;
+    right: 20px;
+    color: var(--muted);
+    font-size: 16px;
+    transition: transform 0.3s;
+  }
+  .stage.open .stage-header::after { transform: rotate(180deg); }
+
+  .stage-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .stage-meta { flex: 1; min-width: 0; }
+  .stage-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .stage-sub { font-size: 10px; color: var(--muted); margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; }
+
+  .stage-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .stage.open .stage-body { max-height: 600px; }
+  .stage-body-inner { padding: 0 20px 20px; }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); margin-bottom: 16px; }
+
+  /* Tools grid */
+  .tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .tool-chip {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+  .tool-chip .tool-name { font-weight: 700; color: var(--text); }
+  .tool-chip .tool-desc { color: var(--muted); margin-top: 2px; font-size: 10px; }
+
+  /* Feature list */
+  .features { list-style: none; }
+  .features li {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .features li:last-child { border-bottom: none; }
+  .features li span { flex-shrink: 0; }
+
+  /* Stage color themes */
+  .s-source { border-color: rgba(233,69,96,0.3); }
+  .s-source .stage-header { background: linear-gradient(135deg, rgba(233,69,96,0.08), transparent); }
+  .s-source .stage-icon { background: rgba(233,69,96,0.15); }
+  .s-source .stage-title { color: var(--red); }
+
+  .s-orchestration { border-color: rgba(33,150,243,0.3); }
+  .s-orchestration .stage-header { background: linear-gradient(135deg, rgba(33,150,243,0.08), transparent); }
+  .s-orchestration .stage-icon { background: rgba(33,150,243,0.15); }
+  .s-orchestration .stage-title { color: var(--blue); }
+
+  .s-bronze { border-color: rgba(205,127,50,0.4); }
+  .s-bronze .stage-header { background: linear-gradient(135deg, rgba(205,127,50,0.1), transparent); }
+  .s-bronze .stage-icon { background: rgba(205,127,50,0.15); }
+  .s-bronze .stage-title { color: var(--bronze); }
+
+  .s-silver { border-color: rgba(168,184,200,0.3); }
+  .s-silver .stage-header { background: linear-gradient(135deg, rgba(168,184,200,0.08), transparent); }
+  .s-silver .stage-icon { background: rgba(168,184,200,0.12); }
+  .s-silver .stage-title { color: var(--silver); }
+
+  .s-gold { border-color: rgba(245,197,24,0.3); }
+  .s-gold .stage-header { background: linear-gradient(135deg, rgba(245,197,24,0.08), transparent); }
+  .s-gold .stage-icon { background: rgba(245,197,24,0.12); }
+  .s-gold .stage-title { color: var(--gold); }
+
+  .s-analytics { border-color: rgba(0,229,160,0.3); }
+  .s-analytics .stage-header { background: linear-gradient(135deg, rgba(0,229,160,0.08), transparent); }
+  .s-analytics .stage-icon { background: rgba(0,229,160,0.12); }
+  .s-analytics .stage-title { color: var(--green); }
+
+  /* Stack pills */
+  .stack-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .pill {
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid;
+    letter-spacing: 0.5px;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 40px;
+    padding: 20px;
+    border-radius: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .footer h3 { font-family: 'Syne', sans-serif; font-size: 14px; color: var(--text); margin-bottom: 10px; }
+  .footer a {
+    display: inline-block;
+    margin: 4px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 11px;
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .btn-github { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid var(--border); }
+  .btn-linkedin { background: rgba(10,102,194,0.2); color: #4d9de0; border: 1px solid rgba(10,102,194,0.4); }
+
+  /* Animate in */
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(20px); }
+    to { opacity:1; transform: translateY(0); }
+  }
+  .stage { animation: fadeUp 0.5s ease both; }
+  .stage:nth-child(1) { animation-delay: 0.05s; }
+  .stage:nth-child(2) { animation-delay: 0.1s; }
+  .stage:nth-child(3) { animation-delay: 0.15s; }
+  .stage:nth-child(4) { animation-delay: 0.2s; }
+  .stage:nth-child(5) { animation-delay: 0.25s; }
+  .stage:nth-child(6) { animation-delay: 0.3s; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-badge">Project Architecture</div>
+    <h1>🏠 Airbnb End-to-End<br/>Data Pipeline</h1>
+    <p>Medallion Architecture &nbsp;·&nbsp; ELT &nbsp;·&nbsp; Sydney Dataset &nbsp;·&nbsp; by Shees Ali Akbar</p>
+  </div>
+
+  <!-- Stage 1: Data Sources -->
+  <div class="stage s-source open" onclick="toggle(this)">
+    <div class="stage-header">
+      <div class="stage-icon">📥</div>
+      <div class="stage-meta">
+        <div class="stage-title">Data Sources</div>
+        <div class="stage-sub">Raw input data</div>
+      </div>
+    </div>
+    <div class="stage-body">
+      <div class="stage-body-inner">
+        <div class="divider"></div>
+        <div class="tools-grid">
+          <div class="tool-chip">
+            <div class="tool-name">📄 CSV Files</div>
+            <div class="tool-desc">12 months of Airbnb Sydney listings</div>
+          </div>
+          <div class="tool-chip">
+            <div class="tool-name">📊 Census Data</div>
+            <div class="tool-desc">Demographics per suburb</div>
+          </div>
+          <div class="tool-chip">
+            <div class="tool-name">🗺️ LGA Mappings</div>
+            <div class="tool-desc">Local Government Area geo data</div>
+          </div>
+          <div class="tool-chip">
+            <div class="tool-name">📁 Multi-source</div>
+            <div class="tool-desc">3 different data sources merged</div>
+          </div>
+        </div>
+        <div class="stack-row">
+          <span class="pill" style="color:var(--red);border-color:rgba(233,69,96,0.4)">CSV</span>
+          <span class="pill" style="color:var(--red);border-color:rgba(233,69,96,0.4)">12 Months</span>
+          <span class="pill" style="color:var(--red);border-color:rgba(233,69,96,0.4)">Multi-source</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow"><span class="arrow-icon">⬇</span> INGESTION</div>
+
+  <!-- Stage 2: Orchestration -->
+  <div class="stage s-orchestration" onclick="toggle(this)">
+    <div class="stage-header">
+      <div class="stage-icon">⚙️</div>
+      <div class="stage-meta">
+        <div class="stage-title">Orchestration Layer</div>
+        <div class="stage-sub">Airflow + Python</div>
+      </div>
+    </div>
+    <div class="stage-body">
+      <div class="stage-body-inner">
+        <div class="divider"></div>
+        <div class="tools-grid">
+          <div class="tool-chip">
+            <div class="tool-name">🌪️ Apache Airflow</div>
+            <div class="tool-desc">Pipeline scheduling & monitoring</div>
+          </div>
+          <div class="tool-chip">
+            <div class="tool-name">🐍 Python DAGs</div>
+            <div class="tool-desc">Dynamic DAG generation via loops</div>
+          </div>
+          <div class="tool-chip">
+            <div class="tool-name">🐼 Pandas</div>
+            <div class="tool-desc">Data loading & preprocessing</div>
+          </div>
+          <div class="tool-chip">
+            <div class="tool-name">🔗 SQLAlchemy</div>
+            <div class="tool-desc">DB connection & ORM layer</div>
+          </div>
+        </div>
+        <ul class="features">
+          <li><span>✅</span> Dynamic DAG generation — 12 ingestion tasks created automatically via Python loops</li>
+          <li><span>✅</span> Automated scheduling for monthly data loads</li>
+          <li><span>✅</span> Error handling and retry logic built in</li>
+        </ul>
+        <div class="stack-row">
+          <span class="pill" style="color:var(--blue);border-color:rgba(33,150,243,0.4)">Airflow</span>
+          <span class="pill" style="color:var(--blue);border-color:rgba(33,150,243,0.4)">Python</span>
+          <span class="pill" style="color:var(--blue);border-color:rgba(33,150,243,0.4)">Pandas</span>
+          <span class="pill" style="color:var(--blue);border-color:rgba(33,150,243,0.4)">SQLAlchemy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow"><span class="arrow-icon">⬇</span> LOAD</div>
+
+  <!-- Stage 3: Bronze -->
+  <div class="stage s-bronze" onclick="toggle(this)">
+    <div class="stage-header">
+      <div class="stage-icon">🥉</div>
+      <div class="stage-meta">
+        <div class="stage-title">Bronze Layer — Raw</div>
+        <div class="stage-sub">As-is data storage</div>
+      </div>
+    </div>
+    <div class="stage-body">
+      <div class="stage-body-inner">
+        <div class="divider"></div>
+        <div class="tools-grid">
+          <div class="tool-chip">
+            <div class="tool-name">🐘 PostgreSQL</div>
+            <div class="tool-desc">Raw tables — data stored as-is</div>
+          </div>
+          <div class="tool-chip">
+            <div class="tool-name">🐳 Docker</div>
+            <div class="tool-desc">Containerized DB environment</div>
+          </div>
+        </div>
+        <ul class="features">
+          <li><span>📌</span> All raw CSV data loaded directly into PostgreSQL without transformation</li>
+          <li><span>📌</span> Full history preserved — no data loss at this stage</li>
+          <li><span>📌</span> Docker Compose manages the entire infrastructure</li>
+        </ul>
+        <div class="stack-row">
+          <span class="pill" style="color:var(--bronze);border-color:rgba(205,127,50,0.4)">PostgreSQL</span>
+          <span class="pill" style="color:var(--bronze);border-color:rgba(205,127,50,0.4)">Docker</span>
+          <span class="pill" style="color:var(--bronze);border-color:rgba(205,127,50,0.4)">Raw Storage</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow"><span class="arrow-icon">⬇</span> TRANSFORM</div>
+
+  <!-- Stage 4: Silver -->
+  <div class="stage s-silver" onclick="toggle(this)">
+    <div class="stage-header">
+      <div class="stage-icon">🥈</div>
+      <div class="stage-meta">
+        <div class="stage-title">Silver Layer — Cleaned</div>
+        <div class="stage-sub">dbt staging models</div>
+      </div>
+    </div>
+    <div class="stage-body">
+      <div class="stage-body-inner">
+        <div class="divider"></div>
+        <div class="tools-grid">
+          <div class="tool-chip">
+            <div class="tool-name">⚙️ dbt Models</div>
+            <div class="tool-desc">Modular SQL transformations</div>
+          </div>
+          <div class="tool-chip">
+            <div class="tool-name">📸 dbt Snapshots</div>
+            <div class="tool-desc">SCD Type 2 change tracking</div>
+          </div>
+          <div class="tool-chip">
+            <div class="tool-name">🔍 Data Quality</div>
+            <div class="tool-desc">Null checks, deduplication</div>
+          </div>
+          <div class="tool-chip">
+            <div class="tool-name">📅 Schema Enforce</div>
+            <div class="tool-desc">Data types, date formatting</div>
+          </div>
+        </div>
+        <ul class="features">
+          <li><span>✅</span> Deduplication of records across 12 monthly files</li>
+          <li><span>✅</span> Currency symbol removal & numeric casting</li>
+          <li><span>✅</span> Null value handling & date standardization</li>
+          <li><span>✅</span> SCD Type 2 snapshots tracking listing price changes over time</li>
+        </ul>
+        <div class="stack-row">
+          <span class="pill" style="color:var(--silver);border-color:rgba(168,184,200,0.4)">dbt</span>
+          <span class="pill" style="color:var(--silver);border-color:rgba(168,184,200,0.4)">SCD Type 2</span>
+          <span class="pill" style="color:var(--silver);border-color:rgba(168,184,200,0.4)">Jinja SQL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow"><span class="arrow-icon">⬇</span> AGGREGATE</div>
+
+  <!-- Stage 5: Gold -->
+  <div class="stage s-gold" onclick="toggle(this)">
+    <div class="stage-header">
+      <div class="stage-icon">🥇</div>
+      <div class="stage-meta">
+        <div class="stage-title">Gold Layer — Business</div>
+        <div class="stage-sub">dbt mart models</div>
+      </div>
+    </div>
+    <div class="stage-body">
+      <div class="stage-body-inner">
+        <div class="divider"></div>
+        <div class="tools-grid">
+          <div class="tool-chip">
+            <div class="tool-name">🏠 Host Performance</div>
+            <div class="tool-desc">Per-host analytics mart</div>
+          </div>
+          <div class="tool-chip">
+            <div class="tool-name">🗺️ Neighborhood</div>
+            <div class="tool-desc">Area-level aggregations</div>
+          </div>
+          <div class="tool-chip">
+            <div class="tool-name">📈 Property Trends</div>
+            <div class="tool-desc">Type-wise trend analysis</div>
+          </div>
+          <div class="tool-chip">
+            <div class="tool-name">🔧 Custom Macros</div>
+            <div class="tool-desc">Schema generator for envs</div>
+          </div>
+        </div>
+        <ul class="features">
+          <li><span>✅</span> Window functions: LAG() for month-over-month growth tracking</li>
+          <li><span>✅</span> PERCENTILE_CONT() for median pricing calculations</li>
+          <li><span>✅</span> Custom dbt macros for staging/mart schema management</li>
+          <li><span>✅</span> Business-ready aggregated dimension tables</li>
+        </ul>
+        <div class="stack-row">
+          <span class="pill" style="color:var(--gold);border-color:rgba(245,197,24,0.4)">dbt Marts</span>
+          <span class="pill" style="color:var(--gold);border-color:rgba(245,197,24,0.4)">Window Functions</span>
+          <span class="pill" style="color:var(--gold);border-color:rgba(245,197,24,0.4)">Custom Macros</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow"><span class="arrow-icon">⬇</span> VISUALIZE</div>
+
+  <!-- Stage 6: Analytics -->
+  <div class="stage s-analytics" onclick="toggle(this)">
+    <div class="stage-header">
+      <div class="stage-icon">📈</div>
+      <div class="stage-meta">
+        <div class="stage-title">Analytics & Monitoring</div>
+        <div class="stage-sub">Grafana dashboards</div>
+      </div>
+    </div>
+    <div class="stage-body">
+      <div class="stage-body-inner">
+        <div class="divider"></div>
+        <div class="tools-grid">
+          <div class="tool-chip">
+            <div class="tool-name">📉 Grafana</div>
+            <div class="tool-desc">Pipeline health monitoring</div>
+          </div>
+          <div class="tool-chip">
+            <div class="tool-name">🔔 Prometheus</div>
+            <div class="tool-desc">Metrics collection & alerts</div>
+          </div>
+        </div>
+        <ul class="features">
+          <li><span>✅</span> Occupancy rate trends by suburb and property type</li>
+          <li><span>✅</span> Pricing trend dashboards with MoM comparisons</li>
+          <li><span>✅</span> Real-time pipeline error detection & alerting</li>
+          <li><span>✅</span> Customer review sentiment tracking</li>
+        </ul>
+        <div class="stack-row">
+          <span class="pill" style="color:var(--green);border-color:rgba(0,229,160,0.4)">Grafana</span>
+          <span class="pill" style="color:var(--green);border-color:rgba(0,229,160,0.4)">Prometheus</span>
+          <span class="pill" style="color:var(--green);border-color:rgba(0,229,160,0.4)">Real-time</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <h3>👨‍💻 Shees Ali Akbar — Data Engineer</h3>
+    <div>
+      <a href="https://github.com/Sheesaliakbar/airbnb-data-pipeline" class="btn-github">⭐ GitHub Repo</a>
+      <a href="https://www.linkedin.com/in/sheesaliakbar6169/" class="btn-linkedin">💼 LinkedIn</a>
+    </div>
+    <p style="margin-top:12px;font-size:10px;color:var(--muted);">Stack: Python · Airflow · dbt · PostgreSQL · Docker · Grafana</p>
+  </div>
+
+</div>
+
+<script>
+  function toggle(el) {
+    el.classList.toggle('open');
+  }
+</script>
+</body>
+</html>
